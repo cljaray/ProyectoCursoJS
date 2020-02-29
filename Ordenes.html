@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head> 
+<body>
+
+    <div>
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Numero ordenes</th>
+                <th scope="col">total</th>
+                <th scope="col">tipo de pago</th>
+                <th scope="col">fecha</th>
+                <th scope="col">detalle</th>
+                </tr>
+            </thead>
+            <tbody id="tabla">
+                
+            </tbody>
+        </table>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script> 
+
+var estructuraOrden ;
+$(document).ready(function(){
+    buscarOrdenes()
+})
+
+function buscarOrdenes(){
+    $.ajax({
+        url: 'http://server2.lnavarro.cl:3300/ordenes',
+        type: 'GET',
+        dataType: 'JSON',
+        success: function(respuesta) {
+            console.log(respuesta)
+            estructuraOrden=respuesta;
+            verlista();
+        },
+        error: function(err) {
+        console.log("No se ha podido obtener la información : " + JSON.stringify(err));
+        }
+    });
+}
+var detalles = [];
+function verlista(){
+    var lista = '';
+    value = 0;
+    valorfor= 0;
+    for(element in estructuraOrden){
+        value++;
+        var boton
+        if (estructuraOrden[element].productos != undefined) {
+            for (i=0;i< estructuraOrden[element].productos.length;i++){
+                var codigo = estructuraOrden[element].productos[i].codigo;
+                var nombre = estructuraOrden[element].productos[i].nombre;
+                var precio = estructuraOrden[element].productos[i].valor;
+                var cantidad = estructuraOrden[element].productos[i].cantidad;
+                var total = estructuraOrden[element].productos[i].total;
+                
+               
+                var detalle =         
+                        "<tr>"+
+                        "<td>"+"codigo"+" " + codigo  +"</td>"+
+                        "<td>"+"nombre"+" " + nombre  +"</td>"+
+                        "<td>"+"precio"+" " + precio  +"</td>"+
+                        "<td>"+"cantidad"+" " + cantidad  +"</td>"+
+                        "<td>"+"total"+" " + total  +"</td>"+
+                        "</tr>";
+                detalles.push(detalle)
+                console.log(detalles);
+            }
+            boton = '<div><button type="button" class="btn btn-primary" onclick="detalle(' + element + ',' + value +')">Detalle</button><div id ="boton'+value+'"></div></div>';            
+        }   
+
+        
+        lista = "<tr>"+
+                    "<th scope='row'>"+ value +"</th>"+
+                    "<td>"+estructuraOrden[element].codigo+"</td>"+
+                    "<td>"+estructuraOrden[element].totalorden+"</td>"+
+                    "<td>"+estructuraOrden[element].metodopago+"</td>"+
+                    "<td>"+estructuraOrden[element].created+"</td>"+
+                    "<td>"+boton+"</td>"+
+                    "</tr>";
+
+                               
+        $("#tabla").append(lista);
+      };
+};
+      function detalle(element, value){
+        $("#boton"+value).html(detalles[element]);            
+    
+    
+      }
+
+    </script>
+</body>
+</html>
